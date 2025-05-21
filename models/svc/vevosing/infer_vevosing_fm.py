@@ -22,7 +22,8 @@ def vevosing_fm(content_wav_path, reference_wav_path, output_path, shifted_src=T
 def load_inference_pipeline():
     # ===== Device =====
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
+    print("loaded device")
+    print(device)
     # ===== Content-Style Tokenizer =====
     local_dir = snapshot_download(
         repo_id="amphion/Vevo1.5",
@@ -33,6 +34,7 @@ def load_inference_pipeline():
     contentstyle_tokenizer_ckpt_path = os.path.join(
         local_dir, "tokenizer/contentstyle_fvq16384_12.5hz"
     )
+    print("loaded Content-Style Tokenizer")
 
     # ===== Flow Matching Transformer =====
     model_name = "fm_emilia101k_singnet7k"
@@ -43,6 +45,7 @@ def load_inference_pipeline():
         cache_dir="./ckpts/Vevo1.5",
         allow_patterns=[f"acoustic_modeling/{model_name}/*"],
     )
+    print("loaded Matching Transformer")
 
     fmt_cfg_path = f"./models/svc/vevosing/config/{model_name}.json"
     fmt_ckpt_path = os.path.join(local_dir, f"acoustic_modeling/{model_name}")
@@ -54,6 +57,7 @@ def load_inference_pipeline():
         cache_dir="./ckpts/Vevo1.5",
         allow_patterns=["acoustic_modeling/Vocoder/*"],
     )
+    print("loaded Vocoder")
 
     vocoder_cfg_path = "./models/svc/vevosing/config/vocoder.json"
     vocoder_ckpt_path = os.path.join(local_dir, "acoustic_modeling/Vocoder")
@@ -67,6 +71,7 @@ def load_inference_pipeline():
         vocoder_ckpt_path=vocoder_ckpt_path,
         device=device,
     )
+    print("loaded inference_pipeline")
     return inference_pipeline
 
 
