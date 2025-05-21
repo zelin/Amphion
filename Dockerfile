@@ -34,9 +34,6 @@ WORKDIR /workspace
 RUN git clone https://github.com/zelin/Amphion.git
 WORKDIR /workspace/Amphion
 
-# Modify env.sh to remove fairseq (if unnecessary)
-RUN sed -i '/pip install fairseq/d' env.sh
-
 # Run Amphion's environment setup script (may install fastdtw, etc.)
 RUN bash env.sh
 

@@ -27,3 +27,8 @@ tqdm
 spaces
 gradio
 openai-whisper
+huggingface_hub
+ipython
+torchvision
+pyworld
+torchcrepe
