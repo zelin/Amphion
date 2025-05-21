@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     && rm -rf /var/lib/apt/lists/*
+
 # Install Miniconda
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
     bash miniconda.sh -b -p /opt/conda && \
@@ -21,27 +22,32 @@ ENV PATH=/opt/conda/bin:$PATH
 
 # Create and activate conda environment
 RUN conda create -n vevo python=3.10 -y
+
+# Set default shell to use conda env
 SHELL ["conda", "run", "-n", "vevo", "/bin/bash", "-c"]
 
-# Clone Amphion repo
+# Install core build tools and pip tools for source packages like fastdtw
+RUN pip install --upgrade pip setuptools wheel cython
+
+# Clone custom Amphion repo
 WORKDIR /workspace
 RUN git clone https://github.com/zelin/Amphion.git
 WORKDIR /workspace/Amphion
 
-# Modify env.sh to remove fairseq installation
+# Modify env.sh to remove fairseq (if unnecessary)
 RUN sed -i '/pip install fairseq/d' env.sh
 
-# Run environment setup
+# Run Amphion's environment setup script (may install fastdtw, etc.)
 RUN bash env.sh
 
-# Install additional VEVO model requirements
+# Install additional requirements for VEVO
 RUN pip install -r models/vc/vevo/requirements.txt
 
-# Install boto3 (missing dependency)
-RUN conda run -n vevo pip install boto3
+# Install boto3 for AWS access
+RUN pip install boto3
 
-# Set working directory
+# Set working directory for inference
 WORKDIR /workspace/Amphion
 
-# Entrypoint to run your main.py
+# Default entrypoint to run your worker script
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "vevo", "python", "run_inference_worker.py"]
