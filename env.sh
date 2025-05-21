@@ -20,7 +20,7 @@ pip install torchmetrics pymcd openai-whisper frechet_audio_distance asteroid re
 
 pip install https://github.com/vBaiCai/python-pesq/archive/master.zip
 
-pip install fairseq
+# pip install fairseq
 
 pip install git+https://github.com/lhotse-speech/lhotse
 
