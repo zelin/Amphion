@@ -1,64 +1,47 @@
-# Copyright (c) 2023 Amphion.
-#
-# This source code is licensed under the MIT license found in the
-# LICENSE file in the root directory of this source tree.
+# Use NVIDIA's official CUDA image with Ubuntu 22.04
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
-# Other version: https://hub.docker.com/r/nvidia/cuda/tags
-FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu18.04
+# Set non-interactive mode for apt
+ENV DEBIAN_FRONTEND=noninteractive
 
-ARG DEBIAN_FRONTEND=noninteractive
-ARG PYTORCH='2.0.0'
-ARG CUDA='cu118'
-ARG SHELL='/bin/bash'
-ARG MINICONDA='Miniconda3-py39_23.3.1-0-Linux-x86_64.sh'
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    git \
+    sudo \
+    espeak-ng \
+    build-essential \
+    cmake \
+    && rm -rf /var/lib/apt/lists/*
+# Install Miniconda
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
+    bash miniconda.sh -b -p /opt/conda && \
+    rm miniconda.sh
+ENV PATH=/opt/conda/bin:$PATH
 
-ENV LANG=en_US.UTF-8 PYTHONIOENCODING=utf-8 PYTHONDONTWRITEBYTECODE=1 CUDA_HOME=/usr/local/cuda CONDA_HOME=/opt/conda SHELL=${SHELL}
-ENV PATH=$CONDA_HOME/bin:$CUDA_HOME/bin:$PATH \
-    LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH \
-    LIBRARY_PATH=$CUDA_HOME/lib64:$LIBRARY_PATH \
-    CONDA_PREFIX=$CONDA_HOME \
-    NCCL_HOME=$CUDA_HOME
+# Create and activate conda environment
+RUN conda create -n vevo python=3.10 -y
+SHELL ["conda", "run", "-n", "vevo", "/bin/bash", "-c"]
 
-# Install ubuntu packages
-RUN sed -i 's/archive.ubuntu.com/mirrors.cloud.tencent.com/g' /etc/apt/sources.list \
-    && sed -i 's/security.ubuntu.com/mirrors.cloud.tencent.com/g' /etc/apt/sources.list \
-    && rm /etc/apt/sources.list.d/cuda.list \
-    && apt-get update \
-    && apt-get -y install \
-    python3-pip ffmpeg git less wget libsm6 libxext6 libxrender-dev \
-    build-essential cmake pkg-config libx11-dev libatlas-base-dev \
-    libgtk-3-dev libboost-python-dev vim libgl1-mesa-glx \
-    libaio-dev software-properties-common tmux \
-    espeak-ng
+# Clone Amphion repo
+WORKDIR /workspace
+RUN git clone https://github.com/zelin/Amphion.git
+WORKDIR /workspace/Amphion
 
-# Install miniconda with python 3.9
-USER root
-# COPY Miniconda3-py39_23.3.1-0-Linux-x86_64.sh /root/anaconda.sh
-RUN wget -t 0 -c -O /tmp/anaconda.sh https://repo.anaconda.com/miniconda/${MINICONDA} \
-    && mv /tmp/anaconda.sh /root/anaconda.sh \
-    && ${SHELL} /root/anaconda.sh -b -p $CONDA_HOME \
-    && rm /root/anaconda.sh
+# Modify env.sh to remove fairseq installation
+RUN sed -i '/pip install fairseq/d' env.sh
 
-RUN conda create -y --name amphion python=3.9.15
+# Run environment setup
+RUN bash env.sh
 
-WORKDIR /app
-COPY env.sh env.sh
-RUN chmod +x ./env.sh
+# Install additional VEVO model requirements
+RUN pip install -r models/vc/vevo/requirements.txt
 
-RUN ["conda", "run", "-n", "amphion", "-vvv", "--no-capture-output", "./env.sh"]
+# Install boto3 (missing dependency)
+RUN conda run -n vevo pip install boto3
 
-RUN conda init \
-    && echo "\nconda activate amphion\n" >> ~/.bashrc
+# Set working directory
+WORKDIR /workspace/Amphion
 
-CMD ["/bin/bash"]
-
-# *** Build ***
-# docker build -t realamphion/amphion .
-
-# *** Run ***
-# cd Amphion
-# docker run --runtime=nvidia --gpus all -it -v .:/app -v /mnt:/mnt_host realamphion/amphion
-
-# *** Push and release ***
-# docker login
-# docker push realamphion/amphion
+# Entrypoint to run your main.py
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "vevo", "python", "run_inference_worker.py"]
