@@ -6,9 +6,12 @@
 # Raise error if any command fails
 set -e
 
+echo "🔧 Installing ffmpeg from conda-forge..."
+
 # Install ffmpeg in Linux
 conda install -c conda-forge ffmpeg
 
+echo "🔧 Installing pip..."
 # Pip packages
 # pip install setuptools ruamel.yaml tqdm colorama easydict tabulate loguru json5 Cython unidecode inflect argparse g2p_en tgt librosa==0.9.1 matplotlib typeguard einops omegaconf hydra-core humanfriendly pandas munch
 
