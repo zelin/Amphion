@@ -5,12 +5,13 @@ FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Use Tencent mirrors for faster APT in China (optional)
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+    && apt-get -y install \
     python3-pip ffmpeg git less wget libsm6 libxext6 libxrender-dev \
     build-essential cmake pkg-config libx11-dev libatlas-base-dev \
     libgtk-3-dev libboost-python-dev vim libgl1-mesa-glx \
-    libaio-dev software-properties-common tmux espeak-ng && \
-    rm -rf /var/lib/apt/lists/*
+    libaio-dev software-properties-common tmux \
+    espeak-ng
 
 # Install Miniconda
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
@@ -24,26 +25,19 @@ RUN conda create -n vevo python=3.10 -y
 # Use conda environment for all remaining commands
 SHELL ["conda", "run", "-n", "vevo", "/bin/bash", "-c"]
 
-# Pre-install Python tools required by fastdtw
-RUN pip install --upgrade pip setuptools wheel cython \
-    && pip install numpy==1.23.5
-
 # Clone custom Amphion repo (your fork)
 WORKDIR /workspace
 RUN git clone https://github.com/zelin/Amphion.git
 WORKDIR /workspace/Amphion
+
+# Install AWS SDK
+RUN pip install boto3
 
 # Run Amphion's environment setup script
 RUN bash env.sh
 
 # Install any additional VEVO-specific requirements
 RUN pip install -r models/vc/vevo/requirements.txt
-
-# Install AWS SDK
-RUN pip install boto3
-
-# Set working directory
-WORKDIR /workspace/Amphion
 
 # Entrypoint for inference
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "vevo", "python", "run_inference_worker.py"]
