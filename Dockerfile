@@ -36,7 +36,6 @@ WORKDIR /workspace/Amphion
 RUN pip install boto3
 
 # Run Amphion's environment setup script
-# RUN bash env.sh
 
 RUN set -e && \
     echo "🔧 Installing ffmpeg via conda..." && \
@@ -50,12 +49,37 @@ RUN set -e && \
 RUN set -e && \
     echo "📦 Installing tensor packages..." && \
     pip install \
-    tensorboard tensorboardX torch==2.0.1 torchaudio==2.0.2 torchvision==0.15.2 accelerate==0.24.1 transformers==4.41.2 diffusers praat-parselmouth audiomentations pedalboard ffmpeg-python==0.2.0 pyworld diffsptk==1.0.1 nnAudio unidecode inflect ptwt
+    tensorboard tensorboardX torch==2.0.1 torchaudio==2.0.2 torchvision==0.15.2 accelerate==0.24.1 transformers==4.41.2 diffusers praat-parselmouth audiomentations pedalboard ffmpeg-python==0.2.0 pyworld diffsptk==1.0.1 nnAudio ptwt
 
 RUN set -e && \
     echo "📦 Installing encodec packages..." && \
     pip install \
-    encodec vocos speechtokenizer g2p_en descript-audio-codec
+    encodec vocos speechtokenizer descript-audio-codec
+
+RUN set -e && \
+    echo "📦 Installing torchmetrics packages..." && \
+    pip install \
+    torchmetrics pymcd openai-whisper frechet_audio_distance asteroid resemblyzer vector-quantize-pytorch==1.12.5
+
+RUN set -e && \
+    echo "📦 Installing python-pesq packages..." && \
+    pip install \
+    https://github.com/vBaiCai/python-pesq/archive/master.zip
+
+RUN set -e && \
+    echo "📦 Installing lhotse packages..." && \
+    pip install \
+    git+https://github.com/lhotse-speech/lhotse
+
+RUN set -e && \
+    echo "📦 Installing encodec..." && \
+    pip install \
+    -U encodec
+
+RUN set -e && \
+    echo "📦 Installing encodec..." && \
+    pip install \
+    phonemizer==3.2.1 pypinyin==0.48.0 black==24.1.1
 
 # Install any additional VEVO-specific requirements
 # RUN pip install -r models/vc/vevo/requirements.txt
