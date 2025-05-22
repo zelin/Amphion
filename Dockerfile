@@ -57,11 +57,6 @@ RUN set -e && \
     encodec vocos speechtokenizer descript-audio-codec
 
 RUN set -e && \
-    echo "📦 Installing torchmetrics packages..." && \
-    pip install \
-    torchmetrics pymcd openai-whisper frechet_audio_distance asteroid resemblyzer vector-quantize-pytorch==1.12.5
-
-RUN set -e && \
     echo "📦 Installing python-pesq packages..." && \
     pip install \
     https://github.com/vBaiCai/python-pesq/archive/master.zip
@@ -80,6 +75,11 @@ RUN set -e && \
     echo "📦 Installing encodec..." && \
     pip install \
     phonemizer==3.2.1 pypinyin==0.48.0 black==24.1.1
+
+RUN set -e && \
+    echo "📦 Installing torchmetrics packages..." && \
+    pip install \
+    torchmetrics pymcd openai-whisper frechet_audio_distance asteroid resemblyzer vector-quantize-pytorch==1.12.5
 
 # Install any additional VEVO-specific requirements
 # RUN pip install -r models/vc/vevo/requirements.txt
