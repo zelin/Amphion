@@ -5,7 +5,7 @@ FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Use Tencent mirrors for faster APT in China (optional)
-RUN apt-get update && apt-get -y upgrade && \
+RUN apt-get update && \
     apt-get install -y \
     wget \
     git \
