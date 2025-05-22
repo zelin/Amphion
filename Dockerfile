@@ -33,11 +33,11 @@ WORKDIR /workspace/Amphion
 # Install AWS SDK
 RUN pip install boto3
 
-# Run Amphion's environment setup script
-RUN bash env.sh
-
 # Install any additional VEVO-specific requirements
 RUN pip install -r models/vc/vevo/requirements.txt
+
+# Run Amphion's environment setup script
+RUN bash env.sh
 
 # Entrypoint for inference
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "vevo", "python", "run_inference_worker.py"]
