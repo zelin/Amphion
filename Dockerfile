@@ -12,6 +12,7 @@ RUN apt-get update && \
     sudo \
     espeak-ng \
     build-essential \
+    python3-dev \
     cmake && \
     rm -rf /var/lib/apt/lists/*
 
@@ -79,8 +80,17 @@ RUN set -e && \
 RUN set -e && \
     echo "📦 Installing torchmetrics packages..." && \
     pip install \
-    torchmetrics pymcd openai-whisper frechet_audio_distance asteroid resemblyzer vector-quantize-pytorch==1.12.5
+    torchmetrics
 
+RUN set -e && \
+    echo "📦 Installing openai packages..." && \
+    pip install \
+    openai-whisper frechet_audio_distance asteroid resemblyzer vector-quantize-pytorch==1.12.5
+
+RUN set -e && \
+    echo "📦 Installing pymcd packages..." && \
+    pip install \
+    -U pymcd 
 # Install any additional VEVO-specific requirements
 # RUN pip install -r models/vc/vevo/requirements.txt
 
