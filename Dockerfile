@@ -1,5 +1,6 @@
 # Use NVIDIA's official CUDA image with Ubuntu 22.04
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+# FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+FROM pytorch/pytorch:2.1.0-cpu-py310
 
 # Set non-interactive mode for apt
 ENV DEBIAN_FRONTEND=noninteractive
