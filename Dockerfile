@@ -1,6 +1,6 @@
 # Use NVIDIA's official CUDA image with Ubuntu 22.04
 # FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
-FROM cnstark/pytorch:2.4.1-py3.10.15-ubuntu22.04
+FROM cnstark/pytorch:2.0.1-py3.10.11-cuda11.8.0-ubuntu22.04
 
 # Set non-interactive mode for apt
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,7 +13,6 @@ RUN apt-get update && \
     sudo \
     espeak-ng \
     build-essential \
-    python3-dev \
     cmake && \
     rm -rf /var/lib/apt/lists/*
 
