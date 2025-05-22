@@ -4,15 +4,13 @@ FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 # Set non-interactive mode for apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies
+# Use Tencent mirrors for faster APT in China (optional)
 RUN apt-get update && apt-get install -y \
-    wget \
-    git \
-    sudo \
-    espeak-ng \
-    build-essential \
-    cmake \
-    && rm -rf /var/lib/apt/lists/*
+    python3-pip ffmpeg git less wget libsm6 libxext6 libxrender-dev \
+    build-essential cmake pkg-config libx11-dev libatlas-base-dev \
+    libgtk-3-dev libboost-python-dev vim libgl1-mesa-glx \
+    libaio-dev software-properties-common tmux espeak-ng && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Miniconda
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
@@ -23,28 +21,29 @@ ENV PATH=/opt/conda/bin:$PATH
 # Create and activate conda environment
 RUN conda create -n vevo python=3.10 -y
 
-# Set default shell to use conda env
+# Use conda environment for all remaining commands
 SHELL ["conda", "run", "-n", "vevo", "/bin/bash", "-c"]
 
-# Install core build tools and pip tools for source packages like fastdtw
-RUN pip install --upgrade pip setuptools wheel cython
+# Pre-install Python tools required by fastdtw
+RUN pip install --upgrade pip setuptools wheel cython \
+    && pip install numpy==1.23.5
 
-# Clone custom Amphion repo
+# Clone custom Amphion repo (your fork)
 WORKDIR /workspace
 RUN git clone https://github.com/zelin/Amphion.git
 WORKDIR /workspace/Amphion
 
-# Run Amphion's environment setup script (may install fastdtw, etc.)
+# Run Amphion's environment setup script
 RUN bash env.sh
 
-# Install additional requirements for VEVO
+# Install any additional VEVO-specific requirements
 RUN pip install -r models/vc/vevo/requirements.txt
 
-# Install boto3 for AWS access
+# Install AWS SDK
 RUN pip install boto3
 
-# Set working directory for inference
+# Set working directory
 WORKDIR /workspace/Amphion
 
-# Default entrypoint to run your worker script
+# Entrypoint for inference
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "vevo", "python", "run_inference_worker.py"]
