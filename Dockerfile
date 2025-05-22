@@ -5,14 +5,15 @@ FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Use Tencent mirrors for faster APT in China (optional)
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get -y upgrade && \
+    apt-get install -y \
     wget \
     git \
     sudo \
     espeak-ng \
     build-essential \
-    cmake \
-    && rm -rf /var/lib/apt/lists/*
+    cmake && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Miniconda
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
