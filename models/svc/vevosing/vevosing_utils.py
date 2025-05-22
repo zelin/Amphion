@@ -177,6 +177,7 @@ class VevosingInferencePipeline:
             self.ar_cfg = None
             self.ar_model = None
 
+        print("LOADED 1")
         if fmt_cfg_path is not None and fmt_ckpt_path is not None:
             self.fmt_cfg = load_config(fmt_cfg_path)
             self.fmt_model = load_checkpoint(
@@ -186,6 +187,7 @@ class VevosingInferencePipeline:
 
             self.init_coco_tokenizer()
 
+        print("LOADED 2")
         if vocoder_cfg_path is not None and vocoder_ckpt_path is not None:
             self.vocoder_cfg = load_config(vocoder_cfg_path)
             self.mel_model = build_mel_model(self.vocoder_cfg, device)
@@ -193,6 +195,7 @@ class VevosingInferencePipeline:
                 build_vocoder_model, self.vocoder_cfg, vocoder_ckpt_path, device
             )
             print(f"#Params of Vocoder model: {count_parameters(self.vocoder_model)}")
+        print("LOADED 3")
 
     def init_coco_tokenizer(self):
         ## Whisper ##

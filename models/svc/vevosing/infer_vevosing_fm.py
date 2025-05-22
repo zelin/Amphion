@@ -63,6 +63,8 @@ def load_inference_pipeline():
     vocoder_ckpt_path = os.path.join(local_dir, "acoustic_modeling/Vocoder")
 
     # ===== Inference =====
+    print("STARTING ")
+    print(local_dir)
     inference_pipeline = VevosingInferencePipeline(
         content_style_tokenizer_ckpt_path=contentstyle_tokenizer_ckpt_path,
         fmt_cfg_path=fmt_cfg_path,
