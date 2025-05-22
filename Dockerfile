@@ -73,7 +73,7 @@ RUN set -e && \
     -U encodec
 
 RUN set -e && \
-    echo "📦 Installing encodec..." && \
+    echo "📦 Installing phonemizer..." && \
     pip install \
     phonemizer==3.2.1 pypinyin==0.48.0 black==24.1.1
 
@@ -87,12 +87,12 @@ RUN set -e && \
     pip install \
     openai-whisper frechet_audio_distance asteroid resemblyzer vector-quantize-pytorch==1.12.5
 
-RUN set -e && \
-    echo "📦 Installing pymcd packages..." && \
-    pip install \
-    -U pymcd 
+# RUN set -e && \
+#     echo "📦 Installing pymcd packages..." && \
+#     pip install \
+#     -U pymcd 
 # Install any additional VEVO-specific requirements
-# RUN pip install -r models/vc/vevo/requirements.txt
+RUN pip install -r models/vc/vevo/requirements.txt
 
 # Entrypoint for inference
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "vevo", "python", "run_inference_worker.py"]
