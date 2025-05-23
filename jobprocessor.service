@@ -1,0 +1,22 @@
+[Unit]
+Description=AI Job Processor (FIFO Worker)
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/processor.sh
+Restart=always
+RestartSec=10
+
+# Ensures it runs under ec2-user, with proper home dir and access
+User=ec2-user
+Environment=HOME=/home/ec2-user
+WorkingDirectory=/home/ec2-user
+
+# Optional: output to log file (use tail -f for live view)
+StandardOutput=append:/var/log/processor.log
+StandardError=append:/var/log/processor.log
+
+[Install]
+WantedBy=multi-user.target

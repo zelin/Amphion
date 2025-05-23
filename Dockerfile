@@ -1,6 +1,6 @@
 # Use NVIDIA's official CUDA image with Ubuntu 22.04
-# FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
-FROM cnstark/pytorch:2.0.1-py3.10.11-cuda11.8.0-ubuntu22.04
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+# FROM cnstark/pytorch:2.0.1-py3.10.11-cuda11.8.0-ubuntu22.04
 
 # Set non-interactive mode for apt
 ENV DEBIAN_FRONTEND=noninteractive
@@ -30,7 +30,12 @@ SHELL ["conda", "run", "-n", "vevo", "/bin/bash", "-c"]
 
 # Clone custom Amphion repo (your fork)
 WORKDIR /workspace
-RUN git clone https://github.com/zelin/Amphion.git
+# Add a dummy build arg to force a cache bust
+ARG AMPHION_REF=main
+
+# Clone Amphion repo with cache busting
+RUN rm -rf Amphion && \
+    git clone --depth=1 https://github.com/zelin/Amphion.git --branch ${AMPHION_REF}
 WORKDIR /workspace/Amphion
 
 # Install AWS SDK
