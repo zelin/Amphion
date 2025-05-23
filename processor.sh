@@ -51,25 +51,26 @@ while true; do
   fi
 
   DOCKER_CMD="docker run -i \
-    --cpus=8.0 \
-    --memory=30g \
+    --gpus all \
+    --cpus=4.0 \
+    --memory=14g \
     --rm \
     --name job-$JOB_ID \
     -v $CACHE_DIR:/root/.cache/huggingface \
     -e PYTHONUNBUFFERED=1 \
     -e HF_HOME=/root/.cache/huggingface \
     -e AWS_DEFAULT_REGION=$REGION \
-    -e TABLE_JOB_QUEUE=$TABLE_JOB_QUEUE \
-    -e TABLE_USER_MEDIA=$TABLE_USER_MEDIA \
-    -e TABLE_USER_SETTINGS=$TABLE_USER_SETTINGS \
-    -e TABLE_BOND_BY_VOICE_USER=$TABLE_BOND_BY_VOICE_USER \
-    -e BUCKET_NAME=$BUCKET_NAME \
-    -e JOB_ID=$JOB_ID \
-    -e MEDIA_ID=$MEDIA_ID \
-    -e USER_ID=$USER_ID \
-    -e USER_VOICE_ID=$USER_VOICE_ID \
-    -e CREATED_AT=$CREATED_AT \
-    -e PLAYLIST_ID=$PLAYLIST_ID \
+    -e TABLE_JOB_QUEUE=\"$TABLE_JOB_QUEUE\" \
+    -e TABLE_USER_MEDIA=\"$TABLE_USER_MEDIA\" \
+    -e TABLE_USER_SETTINGS=\"$TABLE_USER_SETTINGS\" \
+    -e TABLE_BOND_BY_VOICE_USER=\"$TABLE_BOND_BY_VOICE_USER\" \
+    -e BUCKET_NAME=\"$BUCKET_NAME\" \
+    -e JOB_ID=\"$JOB_ID\" \
+    -e MEDIA_ID=\"$MEDIA_ID\" \
+    -e USER_ID=\"$USER_ID\" \
+    -e USER_VOICE_ID=\"$USER_VOICE_ID\" \
+    -e CREATED_AT=\"$CREATED_AT\" \
+    -e PLAYLIST_ID=\"$PLAYLIST_ID\" \
     $ECR_IMAGE"
 
   echo "🔧 Running Docker container for job $JOB_ID..." | tee -a "$LOG_FILE"
