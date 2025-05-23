@@ -180,10 +180,12 @@ class VevosingInferencePipeline:
         print("LOADED 1")
         if fmt_cfg_path is not None and fmt_ckpt_path is not None:
             self.fmt_cfg = load_config(fmt_cfg_path)
+            print("Loaded config")
             self.fmt_model = load_checkpoint(
                 build_fmt_model, self.fmt_cfg, fmt_ckpt_path, device
             )
             print(f"#Params of Flow Matching model: {count_parameters(self.fmt_model)}")
+            print(f"============")
 
             self.init_coco_tokenizer()
 
@@ -198,44 +200,72 @@ class VevosingInferencePipeline:
         print("LOADED 3")
 
     def init_coco_tokenizer(self):
-        ## Whisper ##
-        self.whisper_model = whisper.load_model("medium", self.device)  # 1024 dim
-        self.whisper_model.eval()
+        print("🔁 init_coco_tokenizer() started")
 
-        self.use_normed_whisper = getattr(
-            self.fmt_cfg.model.coco, "use_normed_whisper", False
-        )
-        if self.use_normed_whisper:
-            whisper_stats = torch.load(
-                self.fmt_cfg.model.coco.whisper_stats_path,
-                map_location=self.device,
+        ## Whisper ##
+        print("🌀 Step 1: Initializing Whisper model...")
+        try:
+            self.whisper_model = whisper.load_model("medium", self.device)
+            print("✅ Step 1.1: Whisper model loaded")
+            self.whisper_model.eval()
+            print("✅ Step 1.2: Whisper model set to eval mode")
+        except Exception as e:
+            print(f"❌ Step 1 failed: {e}")
+            raise
+
+        print("🧪 Step 2: Checking if use_normed_whisper is enabled")
+        try:
+            self.use_normed_whisper = getattr(
+                self.fmt_cfg.model.coco, "use_normed_whisper", False
             )
-            self.whisper_mean = whisper_stats["mean"]  # (1024,)
-            self.whisper_std = whisper_stats["std"]  # (1024,)
+            print(f"🔧 Step 2.1: use_normed_whisper = {self.use_normed_whisper}")
+            if self.use_normed_whisper:
+                print("📥 Step 2.2: Loading Whisper normalization stats...")
+                whisper_stats = torch.load(
+                    self.fmt_cfg.model.coco.whisper_stats_path,
+                    map_location=self.device,
+                )
+                self.whisper_mean = whisper_stats["mean"]  # (1024,)
+                self.whisper_std = whisper_stats["std"]    # (1024,)
+                print("✅ Step 2.3: Whisper stats loaded")
+        except Exception as e:
+            print(f"❌ Step 2 failed: {e}")
+            raise
 
         ## Content Tokenizer and Style Tokenizer ##
         if self.ar_model is not None:
-            if self.ar_cfg.model.use_style_tokens_as_input:
-                self.style_tokenizer = load_checkpoint(
-                    build_coco_model,
-                    self.ar_cfg.model.coco_style,
-                    self.prosody_tokenizer_ckpt_path,
-                    self.device,
-                )
-                print(
-                    f"#Params of CocoStyle model: {count_parameters(self.style_tokenizer)}"
-                )
+            print("🌀 Step 3: AR model is not None, checking for style tokens")
+            try:
+                if self.ar_cfg.model.use_style_tokens_as_input:
+                    print("📥 Step 3.1: Loading CocoStyle tokenizer...")
+                    self.style_tokenizer = load_checkpoint(
+                        build_coco_model,
+                        self.ar_cfg.model.coco_style,
+                        self.prosody_tokenizer_ckpt_path,
+                        self.device,
+                    )
+                    print(f"✅ Step 3.2: CocoStyle model params: {count_parameters(self.style_tokenizer)}")
+            except Exception as e:
+                print(f"❌ Step 3 failed: {e}")
+                raise
+        else:
+            print("ℹ️ Step 3 skipped: AR model is None")
 
         ## Content-Style Tokenizer ##
-        self.content_style_tokenizer = load_checkpoint(
-            build_coco_model,
-            self.fmt_cfg.model.coco,
-            self.content_style_tokenizer_ckpt_path,
-            self.device,
-        )
-        print(
-            f"#Params of CocoContentStyle model: {count_parameters(self.content_style_tokenizer)}"
-        )
+        print("🌀 Step 4: Loading CocoContentStyle tokenizer...")
+        try:
+            self.content_style_tokenizer = load_checkpoint(
+                build_coco_model,
+                self.fmt_cfg.model.coco,
+                self.content_style_tokenizer_ckpt_path,
+                self.device,
+            )
+            print(f"✅ Step 4: CocoContentStyle model params: {count_parameters(self.content_style_tokenizer)}")
+        except Exception as e:
+            print(f"❌ Step 4 failed: {e}")
+            raise
+
+        print("✅ init_coco_tokenizer() completed")
 
     @torch.no_grad()
     def extract_mel_feature(self, speech):
