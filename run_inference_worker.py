@@ -8,6 +8,7 @@ import boto3
 from models.svc.vevosing.infer_vevosing_fm import load_inference_pipeline
 from models.svc.vevosing.vevosing_utils import *
 import random
+import time
 
 # AWS Clients
 s3 = boto3.client("s3")
@@ -207,17 +208,22 @@ def run_inference():
     user_media_id = create_user_media(USER_ID, identity_id, MEDIA_ID, USER_VOICE_ID, CREATED_AT)
     user_media_path   = f"private/user-media/{identity_id}/{user_media_id}/output.mp4"
     upload_file_to_s3(final_video_output_path, user_media_path)
-    
+
 if __name__ == "__main__":
+    start_time = time.time()
+
     try:
         print("🚀 Processing AI Task...")
-        
-        # Run the actual model
         run_inference()
-
         update_job_queue_status(JOB_ID, "COMPLETED")
         print("✅ Successfully completed job.")
 
     except Exception as e:
         print(f"❌ ERROR: {str(e)}")
         update_job_queue_status(JOB_ID, "FAILED")
+
+    finally:
+        end_time = time.time()
+        duration = end_time - start_time
+        minutes, seconds = divmod(duration, 60)
+        print(f"🕒 Total time taken: {int(minutes)}m {int(seconds)}s")
