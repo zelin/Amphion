@@ -31,10 +31,11 @@ SHELL ["conda", "run", "-n", "vevo", "/bin/bash", "-c"]
 # Clone custom Amphion repo (your fork)
 WORKDIR /workspace
 # Add a dummy build arg to force a cache bust
+ARG CACHE_BUSTER=initial
 ARG AMPHION_REF=main
 
-# Clone Amphion repo with cache busting
 RUN rm -rf Amphion && \
+    echo "Cache bust value: $CACHE_BUSTER" && \
     git clone --depth=1 https://github.com/zelin/Amphion.git --branch ${AMPHION_REF}
 WORKDIR /workspace/Amphion
 
