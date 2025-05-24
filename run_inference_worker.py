@@ -20,6 +20,8 @@ TABLE_JOB_QUEUE = os.getenv("TABLE_JOB_QUEUE")
 TABLE_USER_MEDIA = os.getenv("TABLE_USER_MEDIA")
 TABLE_USER_SETTINGS = os.getenv("TABLE_USER_SETTINGS")
 TABLE_BOND_BY_VOICE_USER = os.getenv("TABLE_BOND_BY_VOICE_USER")
+TABLE_PLAYLIST_ITEM = os.getenv("TABLE_PLAYLIST_ITEM")
+
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 MEDIA_ID = os.getenv("MEDIA_ID")
@@ -84,12 +86,31 @@ def create_user_media(user_id, identity_id, media_id, voice_id, created_at, titl
             "url": f"private/user-media/{identity_id}/{user_media_id}/",
             "mediaID": media_id,
             "voiceID": voice_id,
-            "mediaId": media_id,
-            "voiceId": voice_id,
             "createdAt": created_at,
-            "updatedAt": created_at
+            "updatedAt": created_at,
+            "baseMediaId": media_id,
+            "baseVoiceId": voice_id,
         }
-    )
+    )    
+    
+    return user_media_id
+
+
+def create_playlist_item(media_id, user_media_id, playlist_id, created_at):
+    table = dynamodb.Table(TABLE_PLAYLIST_ITEM)
+    playlist_item_id = str(uuid.uuid4())
+
+    table.put_item(
+        Item={
+            "id": playlist_item_id,
+            "order": 0,
+            "mediaID": media_id,
+            "addedAt": created_at,
+            "userMediaID": user_media_id,
+            "playlistID": playlist_id,
+        }
+    )    
+        
     return user_media_id
 
 def vevosing_fm(inference_pipeline, content_wav_path, reference_wav_path, output_path, shifted_src=True):
@@ -208,6 +229,10 @@ def run_inference():
     user_media_id = create_user_media(USER_ID, identity_id, MEDIA_ID, USER_VOICE_ID, CREATED_AT)
     user_media_path   = f"private/user-media/{identity_id}/{user_media_id}/output.mp4"
     upload_file_to_s3(final_video_output_path, user_media_path)
+    
+    # if playlist id exists, generate playlist item
+    if PLAYLIST_ID:
+        create_playlist_item(MEDIA_ID, user_media_id, PLAYLIST_ID, CREATED_AT)    
 
 if __name__ == "__main__":
     start_time = time.time()
