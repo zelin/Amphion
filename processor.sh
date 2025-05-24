@@ -45,11 +45,6 @@ while true; do
 
   echo "📦 Processing job: $JOB_ID" | tee -a "$LOG_FILE"
 
-  TTY_FLAG=""
-  if [ -t 1 ]; then
-   TTY_FLAG="-t"
-  fi
-
   DOCKER_CMD="docker run -i \
     --gpus all \
     --cpus=4.0 \

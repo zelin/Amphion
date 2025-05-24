@@ -187,13 +187,13 @@ def run_inference():
     
     mixed_output_path = os.path.join(output_dir, "mixed_output.wav")
     # Download main video
-    media_key = f"public/media/{MEDIA_ID}/md4.mp4"
-    download_s3_file(media_key, "/tmp/md4.mp4")    
+    media_key = f"public/media/{MEDIA_ID}/md.mp4"
+    download_s3_file(media_key, "/tmp/md.mp4")    
     
     final_video_output_path = os.path.join(output_dir, "final_output_video.mp4")
     subprocess.run([
         "ffmpeg",
-        "-i", "/tmp/md4.mp4",           # input video
+        "-i", "/tmp/md.mp4",           # input video
         "-i", mixed_output_path,        # input new audio
         "-c:v", "copy",                 # copy video stream without re-encoding
         "-map", "0:v:0",                # map video from first input
