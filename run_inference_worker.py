@@ -83,7 +83,7 @@ def create_user_media(user_id, identity_id, media_id, voice_id, created_at, titl
             "userId": user_id,
             "title": title,
             "text": f"Processed media for {media_id}",
-            "url": f"private/user-media/{identity_id}/{user_media_id}/",
+            "url": f"private/user-media/{identity_id}/{user_media_id}/output.mp4",
             "mediaID": media_id,
             "voiceID": voice_id,
             "createdAt": created_at,
