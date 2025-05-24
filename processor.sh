@@ -7,7 +7,11 @@ ECR_IMAGE="bondbyvoice-amphion"
 LOG_FILE="/var/log/job_processor.log"
 CACHE_DIR="/opt/hf-cache"
 
-# Ensure Hugging Face cache directory exists and is writable
+# Idle shutdown config
+IDLE_LIMIT=6       # 6 consecutive empty polls = 2 minutes (with 20s wait)
+IDLE_COUNT=0
+
+# Ensure Hugging Face cache directory exists
 mkdir -p "$CACHE_DIR"
 chmod 777 "$CACHE_DIR"
 
@@ -27,8 +31,19 @@ while true; do
 
   if [[ -z "$RECEIPT" || -z "$BODY" ]]; then
     echo "⚠️  No message received or empty payload." | tee -a "$LOG_FILE"
+    ((IDLE_COUNT++))
+    echo "🔁 Idle count: $IDLE_COUNT/$IDLE_LIMIT" | tee -a "$LOG_FILE"
+
+    if [[ "$IDLE_COUNT" -ge "$IDLE_LIMIT" ]]; then
+      echo "🛑 No jobs for a while. Shutting down..." | tee -a "$LOG_FILE"
+      sudo shutdown -h now
+      exit 0
+    fi
     continue
   fi
+
+  # Reset idle counter on new job
+  IDLE_COUNT=0
 
   # Extract job fields
   JOB_ID=$(echo "$BODY" | jq -r '.job_id // empty')
@@ -37,7 +52,7 @@ while true; do
   TABLE_USER_SETTINGS=$(echo "$BODY" | jq -r '.table_user_settings // empty')
   TABLE_BOND_BY_VOICE_USER=$(echo "$BODY" | jq -r '.table_bond_by_voice_user // empty')
   TABLE_PLAYLIST_ITEM=$(echo "$BODY" | jq -r '.table_playlist_item // empty')
-  
+
   BUCKET_NAME=$(echo "$BODY" | jq -r '.s3_bucket_path // empty')
   MEDIA_ID=$(echo "$BODY" | jq -r '.media_id // empty')
   USER_ID=$(echo "$BODY" | jq -r '.user_id // empty')
