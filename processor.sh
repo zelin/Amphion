@@ -36,6 +36,8 @@ while true; do
   TABLE_USER_MEDIA=$(echo "$BODY" | jq -r '.table_user_media // empty')
   TABLE_USER_SETTINGS=$(echo "$BODY" | jq -r '.table_user_settings // empty')
   TABLE_BOND_BY_VOICE_USER=$(echo "$BODY" | jq -r '.table_bond_by_voice_user // empty')
+  TABLE_PLAYLIST_ITEM=$(echo "$BODY" | jq -r '.table_playlist_item // empty')
+  
   BUCKET_NAME=$(echo "$BODY" | jq -r '.s3_bucket_path // empty')
   MEDIA_ID=$(echo "$BODY" | jq -r '.media_id // empty')
   USER_ID=$(echo "$BODY" | jq -r '.user_id // empty')
@@ -58,6 +60,7 @@ while true; do
     -e TABLE_JOB_QUEUE=\"$TABLE_JOB_QUEUE\" \
     -e TABLE_USER_MEDIA=\"$TABLE_USER_MEDIA\" \
     -e TABLE_USER_SETTINGS=\"$TABLE_USER_SETTINGS\" \
+    -e TABLE_PLAYLIST_ITEM=\"$TABLE_PLAYLIST_ITEM\" \
     -e TABLE_BOND_BY_VOICE_USER=\"$TABLE_BOND_BY_VOICE_USER\" \
     -e BUCKET_NAME=\"$BUCKET_NAME\" \
     -e JOB_ID=\"$JOB_ID\" \
