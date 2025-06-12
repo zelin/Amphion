@@ -64,3 +64,6 @@ conversion_results
 get_available_gpu.py
 
 *.safetensors
+temp_auto_push.bat
+temp_interactive_push.bat
+branch_structure.json
