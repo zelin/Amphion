@@ -114,13 +114,17 @@ def create_playlist_item(media_id, user_media_id, playlist_id, created_at):
     return user_media_id
 
 def vevosing_fm(inference_pipeline, content_wav_path, reference_wav_path, output_path, shifted_src=True):
-    gen_audio = inference_pipeline.inference_fm(
-        src_wav_path=content_wav_path,
-        timbre_ref_wav_path=reference_wav_path,
-        use_shifted_src_to_extract_prosody=shifted_src,
-        flow_matching_steps=32,
-    )
-    save_audio(gen_audio, output_path=output_path)
+    try:
+        gen_audio = inference_pipeline.inference_fm(
+            src_wav_path=content_wav_path,
+            timbre_ref_wav_path=reference_wav_path,
+            use_shifted_src_to_extract_prosody=shifted_src,
+            flow_matching_steps=32,
+        )
+        save_audio(gen_audio, output_path=output_path)
+    except Exception as e:
+        print(e)
+        save_audio(content_wav_path, output_path=output_path)
 
 def run_inference():
     
