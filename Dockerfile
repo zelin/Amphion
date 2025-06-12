@@ -53,6 +53,8 @@ RUN set -e && \
     pip install \
     setuptools ruamel.yaml tqdm colorama easydict tabulate loguru json5 Cython unidecode inflect argparse g2p_en tgt librosa==0.9.1 matplotlib typeguard einops omegaconf hydra-core humanfriendly pandas munch
 
+RUN pip install torchlpc==0.6.0
+
 RUN set -e && \
     echo "📦 Installing tensor packages..." && \
     pip install \
