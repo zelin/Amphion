@@ -123,9 +123,14 @@ def vevosing_fm(inference_pipeline, content_wav_path, reference_wav_path, output
         )
         save_audio(gen_audio, output_path=output_path)
     except Exception as e:
-        print(e)
-        save_audio(content_wav_path, output_path=output_path)
-
+        print(f"⚠️ Inference failed on {content_wav_path}: {e}")
+        print("🔁 Copying original content instead...")
+        try:
+            fallback_audio, sr = torchaudio.load(content_wav_path)
+            save_audio(fallback_audio, output_path=output_path, sample_rate=sr)
+        except Exception as fallback_error:
+            print(f"❌ Fallback copy also failed: {fallback_error}")
+            
 def run_inference():
     
     user = get_user(USER_ID)
@@ -184,9 +189,13 @@ def run_inference():
     for i, chunk_path in enumerate(chunk_files):
         chunk_filename = f"processed_chunk_{i:03d}.wav"
         output_path = os.path.join(processed_dir, chunk_filename)
-        print(f"Processing {output_path}")
-        vevosing_fm(inference_pipeline, chunk_path, local_reference_wav_path, output_path)
-        print(f"Processed {chunk_filename}")
+
+        print(f"\n🔄 Processing {chunk_filename}")
+        try:
+            vevosing_fm(inference_pipeline, chunk_path, local_reference_wav_path, output_path)
+            print(f"✅ Successfully processed {chunk_filename}")
+        except Exception as e:
+            print(f"❌ Failed to process {chunk_filename}: {e}")
 
     # Concatenate chunks
     concat_list_path = os.path.join(processed_dir, "concat_list.txt")
